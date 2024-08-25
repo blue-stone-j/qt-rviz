@@ -1,3 +1,4 @@
-# qt-rviz-cloud
+# qt-rviz
 
-Put rviz window into a qt main window and display rviz elements in rviz window.
+This is an example about how to merge rviz and qt UI.
+
