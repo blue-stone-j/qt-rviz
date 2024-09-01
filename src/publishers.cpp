@@ -4,24 +4,24 @@
 
 Publishers::Publishers()
 {
-  parseParams();      // 从参数文件中读取参数
-  createPubs();       // 创建ros::Publisher
+  parseParams(); // read parameters from configuration file
+  createPubs();  // create ros::Publisher
   LOG(INFO) << "Publishers created";
 }
 
-// 从参数文件中读取参数
+// read parameters from configuration file
 void Publishers::parseParams()
 {
-  std::cout<<utlqr::get_root_path()<<std::endl;
+  std::cout << utlqr::get_root_path() << std::endl;
   std::string config_file = utlqr::get_root_path() + "/config/params.yaml";
-  YAML::Node config_node = YAML::LoadFile(config_file);
+  YAML::Node config_node  = YAML::LoadFile(config_file);
   std::string field;
 
   field = "frame_id";
   readParam(config_node[field], frame_id, field);
 }
 
-// 创建ros::Publisher
+// create ros::Publisher
 void Publishers::createPubs()
 {
   // 0: trace
@@ -33,27 +33,32 @@ void Publishers::createPubs()
 int Publishers::updateTrace(std::string new_trace_file)
 {
   if (new_trace_file.size() == 0)
-  {LOG(WARNING) << "Path of trace file is empty!" ;
-return 1;
+  {
+    LOG(WARNING) << "Path of trace file is empty!";
+    return 1;
   }
-  else if(!std::filesystem::exists(new_trace_file))
+  else if (!std::filesystem::exists(new_trace_file))
   {
     LOG(WARNING) << "Trace file doesn't exist: " << new_trace_file;
     return 2;
   }
-  else if(!std::filesystem::is_regular_file(new_trace_file))
-  { LOG(WARNING) << "Path of trace file isn't a file: " << new_trace_file;return 3;}
+  else if (!std::filesystem::is_regular_file(new_trace_file))
+  {
+    LOG(WARNING) << "Path of trace file isn't a file: " << new_trace_file;
+    return 3;
+  }
   else
-  {trace_file = new_trace_file;
+  {
+    trace_file = new_trace_file;
   }
   LOG(INFO) << "Trace file: " << trace_file;
 
-  parseTraceCloud();         //parse trace from csv file
-  publishTrace(trace_cloud); // 发布参考线
+  parseTraceCloud();         // parse trace from csv file
+  publishTrace(trace_cloud); // publish trace
   return 0;
 }
 
-// 向对应的话题发布点云
+// publish cloud corresponding topic
 void Publishers::publishCloud(const pcl::PointCloud<pcl::PointXYZI> &cloud)
 {
   sensor_msgs::PointCloud2 cloud_msg;
@@ -62,7 +67,7 @@ void Publishers::publishCloud(const pcl::PointCloud<pcl::PointXYZI> &cloud)
   pub_vec[1].publish(cloud_msg);
 }
 
-// 发布线
+// publish trace
 void Publishers::publishTrace(const pcl::PointCloud<pcl::PointXYZI> &cloud)
 {
   nav_msgs::Path path;
@@ -71,7 +76,7 @@ void Publishers::publishTrace(const pcl::PointCloud<pcl::PointXYZI> &cloud)
   pub_vec[0].publish(path);
 }
 
-// 把点云转换为线
+// convert cloud to curve line
 void Publishers::createTrace(const pcl::PointCloud<pcl::PointXYZI> &cloud, nav_msgs::Path &trace)
 {
   trace.header.frame_id = frame_id;
@@ -87,7 +92,7 @@ void Publishers::createTrace(const pcl::PointCloud<pcl::PointXYZI> &cloud, nav_m
   }
 }
 
-// 从文件中解析出trace的数据
+// parse trace from file
 int Publishers::parseTraceCloud()
 {
   std::ifstream fs;
@@ -105,31 +110,33 @@ int Publishers::parseTraceCloud()
   }
   trace_cloud.clear();
 
-    if (!fs.is_open())
-    {
-     LOG(ERROR) << "Unable to open file for writing." << std::endl;
-      return 5;
-    }
+  if (!fs.is_open())
+  {
+    LOG(ERROR) << "Unable to open file for writing." << std::endl;
+    return 5;
+  }
 
-    if (fs)
+  if (fs)
+  {
+    std::string line;
+    while (std::getline(fs, line))
     {
-      std::string line;
-      while (std::getline(fs, line))
+      std::string token;
+      std::istringstream tokenStream(line);
+      char delimiter = ',';
+      std::vector<double> vec;
+      while (std::getline(tokenStream, token, delimiter))
       {
-
-                std::string token;
-          std::istringstream tokenStream(line);
-          char delimiter = ',';
-          std::vector<double> vec;
-          while (std::getline(tokenStream, token, delimiter))
-          {
-            vec.push_back(std::stof(token));
-          }
- pcl::PointXYZI pt;
-
-          pt.x=vec[0];pt.y=vec[1];pt.z=vec[2];
-          trace_cloud.push_back(pt);
+        vec.push_back(std::stof(token));
       }
-      fs.close();}
+      pcl::PointXYZI pt;
+
+      pt.x = vec[0];
+      pt.y = vec[1];
+      pt.z = vec[2];
+      trace_cloud.push_back(pt);
+    }
+    fs.close();
+  }
   return 1;
 }

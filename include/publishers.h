@@ -32,17 +32,17 @@ class Publishers
   void publishTrace(const pcl::PointCloud<pcl::PointXYZI> &cloud);
 
  private:
-  void parseParams(); // 从参数文件中读取参数
+  void parseParams(); // read parameters from configuration file
   std::string frame_id;
   // refer area(csv);
   pcl::PointCloud<pcl::PointXYZI> trace_cloud; // trace
   std::string trace_file;
-  int parseTraceCloud(); // 从文件中解析出trace的数据
+  int parseTraceCloud(); // parse trace from file
   ros::NodeHandle nh;
-  void createTrace(const pcl::PointCloud<pcl::PointXYZI> &cloud_in, nav_msgs::Path &trace); // 把点云转换为线
+  void createTrace(const pcl::PointCloud<pcl::PointXYZI> &cloud_in, nav_msgs::Path &trace); // convert cloud to curve line
   std::vector<ros::Publisher> pub_vec;
   ros::V_Publisher pubs;
-  void createPubs(); // 创建ros::Publisher
+  void createPubs(); // create ros::Publisher
 };
 
 #endif

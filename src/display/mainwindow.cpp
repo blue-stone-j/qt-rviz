@@ -7,10 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   root_path   = utlqr::get_root_path();
   default_dir = QString::fromStdString(root_path) + QString("/assets");
-  ui->setupUi(this, QString().fromStdString(root_path + "/assets/")); // 创建界面
+  ui->setupUi(this, QString().fromStdString(root_path + "/assets/")); // create window layout
   addDisplays();
 
-  //(按钮,点击,this,需要执行的函数)
+  //(action,trigger signal,this,slot function)
   connect(ui->about, SIGNAL(triggered()), this, SLOT(openAbout()));
 
   // std::cout << MY_PRINT_VAR(mode) << std::endl;
@@ -47,7 +47,7 @@ bool MainWindow::on_select_cloud_clicked()
 }
 
 
-// 为内嵌的rviz添加话题、消息并设置显示的属性
+// add topics and messages and add display properties in embeded rviz.
 void MainWindow::addDisplays()
 {
   std::pair<std::string, std::string> name;
@@ -94,15 +94,15 @@ void MainWindow::on_viewport_clicked()
   // ulog(qs);
 }
 
-// 选取并发布参考线文件
+// select file and publish refer curve line
 void MainWindow::on_select_trace_clicked()
 {
-  // 选取参考线文件
+  // select file
   QString filepath = QFileDialog::getOpenFileName(this, "select trace", default_dir, "*.csv");
   pubers.updateTrace(filepath.toStdString());
 }
 
-// 关闭窗口前会先处理该事件函数
+// this function will perform first before window is closed when a close event occurs
 void MainWindow::closeEvent(QCloseEvent *event)
 {
   std::cout << "closing main window" << std::endl;

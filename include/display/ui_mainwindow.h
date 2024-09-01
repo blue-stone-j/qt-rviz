@@ -24,7 +24,7 @@ QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
 {
-public:
+ public:
   QMenuBar *menuBar;
   QAction *about;
 
@@ -37,9 +37,9 @@ public:
   QPushButton *select_trace;
 
 
-  // 创建rviz容器，其本质是一个QWidget类型
+  // create a rviz container, which is QWidget
   rviz::RenderPanel *render_panel;
-  // 初始化rviz控制对象
+  // initialize rviz manager
   rviz::VisualizationManager *visual_manager;
 
   rviz::Display *display;
@@ -48,14 +48,16 @@ public:
   void setupUi(QMainWindow *MainWindow, QString root_path = "../")
   {
     if (MainWindow->objectName().isEmpty())
-      {MainWindow->setObjectName(QStringLiteral("MainWindow"));}
+    {
+      MainWindow->setObjectName(QStringLiteral("MainWindow"));
+    }
     MainWindow->setWindowModality(Qt::WindowModal);
     MainWindow->resize(1620, 890);
     MainWindow->showNormal();
     MainWindow->setWindowIcon(QIcon(root_path + "logo.ico"));
 
 
-    QSize min_size(400,500);
+    QSize min_size(400, 500);
     MainWindow->setMinimumSize(min_size);
 
     centralWidget = new QWidget(MainWindow);
@@ -92,7 +94,7 @@ public:
 
 
     render_panel = new rviz::RenderPanel(centralWidget);
-    render_panel->setGeometry(QRect(10, 50, MainWindow->width()-20, MainWindow->height()-85));
+    render_panel->setGeometry(QRect(10, 50, MainWindow->width() - 20, MainWindow->height() - 85));
 
     visual_manager = new rviz::VisualizationManager(render_panel);
     /*
@@ -105,7 +107,7 @@ public:
     // camera->setOrientation(Ogre::Quaternion(ovec3));
     /**/
 
-    // 初始化camera 这行代码实现放大 缩小 平移等操作
+    // initialize camera. This statement will import zoom and translation to rviz
     render_panel->initialize(visual_manager->getSceneManager(), visual_manager);
 
     visual_manager->initialize();
@@ -115,23 +117,23 @@ public:
     // render_panel->setCamera(camera);
 
     rviz::Display *grid = visual_manager->createDisplay("rviz/Grid", "adjustable grid", true);
-    // 进行断言防止闪退
+    // to prevent crash
     // ROS_ASSERT(grid != NULL);
-    // 设置属性值
+    // set properties
     grid->subProp("Line Style")->setValue("Lines");
     grid->subProp("Color")->setValue(QColor(160, 160, 164));
     grid->subProp("Cell Size")->setValue("5");
     grid->subProp("Plane Cell Count")->setValue("100");
 
     rviz::Display *axis = visual_manager->createDisplay("rviz/Axes", "axis", true);
-    // 进行断言防止闪退
+    // to prevent crash
     // ROS_ASSERT(axis != NULL);
-    // 设置属性值
+    // set properties
     axis->subProp("Length")->setValue("5");
     axis->subProp("Radius")->setValue("1");
     axis->subProp("Alpha")->setValue("1");
 
-    // 设置rviz左侧的参数设置
+    // set properties in leftside of rviz
     visual_manager->setFixedFrame("/map");
 
 
@@ -139,7 +141,8 @@ public:
 
     QMetaObject::connectSlotsByName(MainWindow);
 
-   render_panel->setGeometry(QRect(10, 50, MainWindow->width()-20, MainWindow->height()-85));;
+    render_panel->setGeometry(QRect(10, 50, MainWindow->width() - 20, MainWindow->height() - 85));
+    ;
   } // setupUi
 
   void retranslateUi(QMainWindow *MainWindow)
@@ -164,17 +167,16 @@ public:
       dis->subProp(QString().fromStdString(item.first))->setValue(QString().fromStdString(item.second));
     }
 
-      dis->subProp("Color")->setValue(color);
+    dis->subProp("Color")->setValue(color);
     //   dis->subProp("Axis")->setValue("Z");
-
   }
 };
 
 namespace Ui
 {
-  class MainWindow : public Ui_MainWindow
-  {
-  };
+class MainWindow : public Ui_MainWindow
+{
+};
 } // namespace Ui
 
 QT_END_NAMESPACE
